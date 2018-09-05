@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "#' This function checks if the cpr-number is a real cpr-number.\n#'\n#' @param cpr a character vector representating the cpr-numbers. must be 10 digits long and containg no '-'.\n#' @return logical indicating whether the cpr-number is real or not\n#' @author Magnus Ahlström\n#' @details\n#' A real cpr number contains numbers from 0-9 is 10 digits long and when the digits are multiplied by\n#' a specific vector, the rowsum should be dividable by 11.\n#' @seealso \\code{cpr2BD} \\code{cpr2Sex}\n\ncpr_correct <- function(cpr) {\n  if(!is.character(cpr)) stop(\"cpr must be a character string\")\n  if(sum(grepl(\"[[:digit:]]{6}-[[:digit:]]{4}\", cpr), na.rm = T) > 0) stop(\"cpr should be without a dash ('-')\")\n  if(sum(nchar(cpr) != 10) > 0) stop(\"cpr should be 10 digit long\")\n  cdd <- suppressWarnings(as.numeric(substr(cpr,1,2)))\n  splitted <- t(matrix(as.numeric(do.call(rbind, strsplit(cpr, \"\"))), ncol = 10))\n  out <- colSums(splitted * c(4,3,2,7,6,5,4,3,2,1)) %% 11 == 0\n  as.logical((is.na(out) * F) + (!is.na(cdd) & cdd <= 31 & cdd >= 1))\n}\n\n#' This function returns a birthday based on a real cpr-number\n#'\n#' @param cpr a character vector representating the cpr-numbers. must be 10 digits long and containg no '-'.\n#' @return a date vector of birthdates of the individuals.\n#' @author Magnus Ahlström\n#' @details\n#' Based on the digits 1-2 day of birth is calculated, the month is calculated based on digits 3-4 and year is\n#' calculated based on digits 5-7.\n#' @export\n#' @seealso \\code{cpr_correct} \\code{cpr2Sex}\n\ncpr2BD <- function(cpr) {\n  kor <- cpr_correct(cpr)\n  if (sum(!kor) > 0) warning(\"Some or more cprs where invalid Danish cprs\")\n  cdd <- suppressWarnings(as.numeric(substr(cpr, 1, 2)))\n  cmm <- suppressWarnings(as.numeric(substr(cpr, 3, 4)))\n  cyy <- suppressWarnings(as.numeric(substr(cpr, 5, 6)))\n  c7 <- as.numeric(substr(cpr, 7, 7))\n  year <-\n    (c7 %in% c(\"0\", \"1\", \"2\", \"3\")) * 1900  +\n    (c7 %in% c(\"4\") & cyy <= 36) * 2000 +\n    (c7 %in% c(\"4\") & cyy > 36) * 1900 +\n    (c7 %in% c(\"5\", \"6\", \"7\", \"8\") & cyy <= 57) * 2000 +\n    (c7 %in% c(\"5\", \"6\", \"7\", \"8\") & cyy > 57) * 1800 +\n    (c7 %in% c(\"9\") & cyy <= 36) * 2000 +\n    (c7 %in% c(\"9\") & cyy > 36) * 1900 +\n    cyy\n  ds <- paste(year, cmm, cdd, sep = \"-\")\n  ds <- replace(ds, !kor, NA)\n  date.temp <- as.Date(ds)\n  date.temp <- as.numeric(date.temp) * kor + as.numeric(!kor) * c(-25567)\n  #date.temp <- replace(date.temp, !kor, NA)\n  as.Date(date.temp, origin = \"1970-01-01\")\n}\n\n#' This function returns sex based on a real cpr-number\n#'\n#' @param cpr a character vector representating the cpr-numbers. must be 10 digits long and containg no '-'.\n#' @param output class of the output either 'numeric' 1 is male and 2 is female. Or factor with labels\n#' 'M', 'F' or 'Invalid'\n#' @return a date vector of birthdates of the individuals.\n#' @author Magnus Ahlström\n#' @details\n#' Based on digit 10 sex is calculated, if the number is dividable by 2 output is female if not then\n#' output is male.\n#' @export\n#' @seealso \\code{cpr_correct} \\code{cpr2BD}\n\ncpr2Sex <- function(cpr, output = c(\"as.numeric\", \"factor\")) {\n  kor <- cpr_correct(cpr)\n  if (sum(!kor) > 0) warning(\"Some or more cprs where invalid Danish cprs\")\n  output <- match.arg(output)\n  L10 <- substr(cpr, 10, 10)\n  N10 <- ((as.numeric(L10) %% 2 == 1) * 1 + (as.numeric(L10) %% 2 == 0) * 2) * kor\n  out <- eval(call(output, x = N10, levels = c(0,1,2), labels = c(\"Invalid\", \"M\", \"F\")))\n  out[!kor] <- NA\n  out\n}\n",
+    "created" : 1536132275903.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2956197272",
+    "id" : "A33EF1AA",
+    "lastKnownWriteTime" : 1536133582,
+    "last_content_update" : 1536133582313,
+    "path" : "F:/EfUA/MGAH/R_pakker/cpR/R/cpr_functions.R",
+    "project_path" : "R/cpr_functions.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

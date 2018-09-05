@@ -1,0 +1,11 @@
+Package: cpR
+Type: Package
+Title: The package calculates birhtday and sex of an individuals based on the cpr-number.
+Version: 0.1.0
+Author: Magnus Glindvad Ahlström
+Maintainer: Magnus Glindvad Ahlström <magnus.rasch@gmail.com>
+Description: The package calculates birhtday and sex of an individuals based on the cpr-number.
+License: GNU?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.0
